@@ -23,15 +23,14 @@ Build from Ebay pipeline project
 Landmark Technologies ''', subject: 'Build Status', to: 'developers'
     }
     stage('Approval'){
-        timeout(time:8, unit: 'hours') {
-        input message: 'please verify. and approve'
+        timeout(time:8, unit: 'HOURS' ) {
+        input message: 'please verify and approve'
     }
   }
    stage('prod-Deploy'){
       deploy adapters: [tomcat9(credentialsId: 'TomcatCredentials_deploy', path: '', url: 'http://3.83.219.237:8080 ')], contextPath: null, war: 'target/*.war'
   }
 }
-
 
         
         
