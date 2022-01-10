@@ -1,0 +1,37 @@
+node {
+    def mavenHome = tool name: 'maven3.8.4' 
+    stage('1-Clone'){
+        git credentialsId: 'GitHubCredentials', url: 'https://github.com/Landmark-FinTech-2/maven-web-application'
+    }
+    stage('2-mavenBuild'){ 
+        sh "${mavenHome}/bin/mvn clean package"
+    }
+    stage('3-CodeQuality'){
+        sh "${mavenHome}/bin/mvn sonar:sonar"
+    }
+    stage('4-UploadArtifacts'){
+        sh "${mavenHome}/bin/mvn deploy"
+    }
+    stage('5-DeployTomcat') {
+        deploy adapters: [tomcat9(credentialsId: 'TomcatCredentials_deploy', path: '', url: 'http://3.83.219.237:8080 ')], contextPath: null, war: 'target/*.war'
+    }
+    stage('EmailNotification') {
+        emailext body: '''Hello everyone, 
+
+Build from Ebay pipeline project
+
+Landmark Technologies ''', subject: 'Build Status', to: 'developers'
+    }
+    stage('Approval'){
+        timeout(time:8, unit: 'hours') {
+        input message: 'please verify. and approve'
+    }
+  }
+   stage('prod-Deploy'){
+      deploy adapters: [tomcat9(credentialsId: 'TomcatCredentials_deploy', path: '', url: 'http://3.83.219.237:8080 ')], contextPath: null, war: 'target/*.war'
+  }
+}
+
+
+        
+        
